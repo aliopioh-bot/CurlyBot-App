@@ -62,7 +62,7 @@ PUNCH_EMOTE = "emote-boxer"          # دنس «زدن» برای فرستنده
 FALL_EMOTE = "emote-death2"          # دنس «افتادن/غش» برای هدف !punch
 PUNCH_COOLDOWN = 6.0                 # ثانیه
 
-BOT_START_POSITION = (16.5, 0.25, 3.5)   # جای پیش‌فرض ربات هنگام ورود
+BOT_START_POSITION = None   # پیش‌فرض: ربات همون جای ورودِ خود روم می‌ایسته (با !set جای دلخواه تعیین کن)
 DOWN_POSITION = (2.0, 0.5, 1.5)          # مقصد دستور !down
 
 MAX_SONG_SECONDS = 600               # آهنگ بلندتر از این قبول نمی‌شود
@@ -1569,11 +1569,12 @@ class CurlyBot(BaseBot):
         logger.info("ربات به سرور هایرایز وصل شد.")
         self.user_id = getattr(session_metadata, "user_id", None)
         await self.cleanup_tasks()
-        pos = self.saved_bot_position() or list(BOT_START_POSITION)
-        try:
-            await self.highrise.teleport(user_id=self.user_id, dest=Position(x=pos[0], y=pos[1], z=pos[2]))
-        except Exception as e:
-            logger.error(f"خطا در تلپورت اولیه: {e}")
+        pos = self.saved_bot_position() or (list(BOT_START_POSITION) if BOT_START_POSITION else None)
+        if pos:   # فقط اگه جای ذخیره‌شده (!set) داشته باشه تلپورت می‌کنه
+            try:
+                await self.highrise.teleport(user_id=self.user_id, dest=Position(x=pos[0], y=pos[1], z=pos[2]))
+            except Exception as e:
+                logger.error(f"خطا در تلپورت اولیه: {e}")
         await self.sync_room_users()
         self.announcement_task = create_task(self.announcement_loop())
         self.score_task = create_task(self.score_loop())
