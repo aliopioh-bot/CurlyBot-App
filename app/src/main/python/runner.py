@@ -21,13 +21,19 @@ def _log(msg):
 class _LogHandler(logging.Handler):
     def emit(self, record):
         try:
+            msg = record.getMessage()
+            if "PUBLIC_URL" in msg or "radio.mp3" in msg:   # رادیو روی گوشی استفاده نمی‌شه
+                return
             icon = {"ERROR": "❌", "CRITICAL": "❌", "WARNING": "⚠️"}.get(record.levelname, "•")
-            _log(f"{icon} {record.getMessage()}")
+            _log(f"{icon} {msg}")
         except Exception:
             pass
 
 
 class _Tee:
+    encoding = "utf-8"
+    errors = "replace"
+
     def write(self, s):
         s = str(s).strip()
         if s:
@@ -36,6 +42,12 @@ class _Tee:
 
     def flush(self):
         pass
+
+    def isatty(self):
+        return False
+
+    def writable(self):
+        return True
 
 
 def _free_port():
@@ -98,8 +110,7 @@ def start(room_id, token, owner, admins, files_dir):
     os.environ["OWNER_USERNAME"] = str(owner).strip().lstrip("@")
     os.environ["ADMIN_USERNAMES"] = str(admins).strip()
     os.environ["PORT"] = str(_free_port())
-    sys.stdout = _Tee()
-    sys.stderr = _Tee()
+    sys.stdout = _Tee()   # فقط print ها؛ لاگ‌های logging جدا گرفته می‌شن
     _state["started"] = time.time()
     th = threading.Thread(target=_run, name="curlybot", daemon=True)
     _state["thread"] = th

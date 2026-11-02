@@ -38,6 +38,7 @@ class BotService : Service() {
         }
     }
 
+    @Volatile private var alive = false
     private var wake: PowerManager.WakeLock? = null
     private var wifi: WifiManager.WifiLock? = null
 
@@ -71,16 +72,29 @@ class BotService : Service() {
             shutdown()
             return START_NOT_STICKY
         }
+        alive = true
         Thread {
             try {
                 Python.getInstance().getModule("runner").callAttr("start", room, token, owner, admins, dir)
             } catch (_: Throwable) {
+            }
+            // نگهبان: اگه ربات بمیره (مثلاً خطای import)، سرویس و نوتیفیکیشن «آنلاین» هم بسته می‌شه
+            var misses = 0
+            try { Thread.sleep(8000) } catch (_: InterruptedException) {}
+            while (alive) {
+                val up = try {
+                    Python.getInstance().getModule("runner").callAttr("is_running").toBoolean()
+                } catch (_: Throwable) { false }
+                if (up) misses = 0 else misses++
+                if (misses >= 2) { alive = false; shutdown(); break }
+                try { Thread.sleep(3000) } catch (_: InterruptedException) { break }
             }
         }.start()
         return START_STICKY
     }
 
     private fun shutdown() {
+        alive = false
         Thread {
             try {
                 Python.getInstance().getModule("runner").callAttr("stop")
@@ -142,6 +156,7 @@ class BotService : Service() {
     }
 
     override fun onDestroy() {
+        alive = false
         releaseLocks()
         super.onDestroy()
     }

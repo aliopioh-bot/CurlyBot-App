@@ -20,8 +20,9 @@ android {
         python {
             version "3.11"
             pip {
-                // highrise-bot-sdk به typing_extensions<4 گیر می‌ده و باعث خطای TypeVarTuple می‌شد.
-                // پس وابستگی‌ها دستی و با همون نسخه‌های سالمِ اپ قبلی نصب می‌شن.
+                // highrise-bot-sdk به typing_extensions<4 گیر می‌ده، پس وابستگی‌ها دستی و
+                // با همون نسخه‌های سالمِ اپ قبلی نصب می‌شن (--no-deps).
+                // pendulum عمداً نیست: نسخه‌ی سبک خودمون توی python/pendulum جاشه.
                 options "--no-deps"
                 install "typing_extensions==4.16.0"
                 install "highrise-bot-sdk==25.1.0"
@@ -37,10 +38,6 @@ android {
                 install "propcache==0.5.4"
                 install "quattro==22.2.0"
                 install "yarl==1.25.1"
-                install "pendulum==2.1.2"
-                install "python-dateutil==2.9.0.post0"
-                install "pytzdata==2020.1"
-                install "six==1.16.0"
             }
         }
     }
