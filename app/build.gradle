@@ -20,14 +20,27 @@ android {
         python {
             version "3.11"
             pip {
-                // همان نسخه‌هایی که روی اندروید با Chaquopy ساخته می‌شوند
+                // highrise-bot-sdk به typing_extensions<4 گیر می‌ده و باعث خطای TypeVarTuple می‌شد.
+                // پس وابستگی‌ها دستی و با همون نسخه‌های سالمِ اپ قبلی نصب می‌شن.
+                options "--no-deps"
+                install "typing_extensions==4.16.0"
                 install "highrise-bot-sdk==25.1.0"
                 install "aiohttp==3.10.10"
-                install "multidict==5.1.0"
-                install "frozenlist==1.4.0"
-                install "pendulum==2.1.2"
+                install "aiohappyeyeballs==2.7.1"
+                install "aiosignal==1.4.0"
+                install "attrs==26.1.0"
                 install "cattrs==22.2.0"
+                install "click==8.5.0"
+                install "frozenlist==1.4.0"
+                install "idna==3.20"
+                install "multidict==5.1.0"
+                install "propcache==0.5.4"
                 install "quattro==22.2.0"
+                install "yarl==1.25.1"
+                install "pendulum==2.1.2"
+                install "python-dateutil==2.9.0.post0"
+                install "pytzdata==2020.1"
+                install "six==1.16.0"
             }
         }
     }
